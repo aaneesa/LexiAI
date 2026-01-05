@@ -40,7 +40,7 @@ export const protect = async (req, res, next) => {
     }
   }
   if (!token) {
-        return res.sttaus(401).json({
+        return res.status(401).json({
           success: false,
           error: 'Not authorized, no token',
           statusCode: 401
