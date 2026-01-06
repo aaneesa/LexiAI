@@ -19,11 +19,11 @@ export const chunkText = (
     if (!chunk) return;
 
     if (chunks.length > 0 && overlap > 0) {
-      const prevChunk = chunks[chunks.length - 1];
-      const overlapText = prevChunk.slice(-overlap);
-      chunks.push(overlapText + chunk);
+      const prev = chunks[chunks.length - 1].content;
+      const overlapText = prev.slice(-overlap);
+      chunks.push({ content: overlapText + chunk });
     } else {
-      chunks.push(chunk);
+      chunks.push({ content: chunk });
     }
   };
 
@@ -61,17 +61,8 @@ export const chunkText = (
   return chunks;
 };
 
-const STOP_WORDS = new Set([
-  "a", "an", "the", "and", "or", "but", "if", "then", "else",
-  "of", "to", "in", "on", "for", "with", "at", "by", "from",
-  "up", "down", "out", "over", "under", "again", "further",
-  "is", "are", "was", "were", "be", "been", "being",
-  "have", "has", "had", "do", "does", "did",
-  "this", "that", "these", "those",
-  "it", "its", "as", "not", "no", "nor",
-  "can", "will", "just", "should", "now",
-  "you", "your", "yours", "we", "our", "ours",
-  "they", "their", "theirs",
+/* =========================
+   RELEVANCE SEARCH
 ]);
 
 export const findRelevantChunks = (
@@ -84,17 +75,14 @@ export const findRelevantChunks = (
   const keywords = query
     .toLowerCase()
     .split(/\s+/)
-    .map(w => w.trim())
     .filter(w => w && !STOP_WORDS.has(w));
 
-  if (keywords.length === 0) return [];
-
-  const scoredChunks = chunks.map(chunk => {
+  const scored = chunks.map(chunk => {
     let score = 0;
-    const lowerChunk = chunk.toLowerCase();
+    const text = chunk.content.toLowerCase();
 
     for (const word of keywords) {
-      const matches = lowerChunk.match(
+      const matches = text.match(
         new RegExp(`\\b${escapeRegex(word)}\\b`, "g")
       );
       if (matches) score += matches.length;
@@ -103,11 +91,11 @@ export const findRelevantChunks = (
     return { chunk, score };
   });
 
-  return scoredChunks
-    .filter(item => item.score > 0)
+  return scored
+    .filter(s => s.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, maxResults)
-    .map(item => item.chunk);
+    .map(s => s.chunk);
 };
 
 const escapeRegex = (text) =>
