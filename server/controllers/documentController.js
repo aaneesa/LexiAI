@@ -20,6 +20,7 @@ export const uploadDocument = async (req, res, next) => {
 
     const { title } = req.body;
     if (!title) {
+      // Clean up uploaded file if validation fails
       await fs.unlink(req.file.path).catch(() => {});
       return res.status(400).json({
         success: false,
@@ -27,25 +28,23 @@ export const uploadDocument = async (req, res, next) => {
       });
     }
 
-    const baseUrl =
-      process.env.BASE_URL ||
-      `http://localhost:${process.env.PORT || 8000}`;
-
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 8000}`;
     const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     const document = await Document.create({
       userId: req.user._id,
       title,
-      fileName: req.file.filename,          // ✅ FIXED
+      fileName: req.file.filename,
       originalName: req.file.originalname,
-      filePath: req.file.path,               // ✅ LOCAL PATH
+      filePath: req.file.path, // Store local path for processing/deletion
       fileUrl,
       fileSize: req.file.size,
       status: 'processing'
     });
 
+    // Start background processing
     processPDF(document._id, req.file.path).catch(err => {
-      console.error('PDF processing failed:', err.message);
+      console.error('PDF background processing failed:', err.message);
     });
 
     return res.status(201).json({
@@ -68,7 +67,6 @@ export const uploadDocument = async (req, res, next) => {
 const processPDF = async (documentId, filePath) => {
   try {
     const { text } = await extractTextFromPDF(filePath);
-
     const chunks = chunkText(text, 500, 50);
 
     await Document.findByIdAndUpdate(documentId, {
@@ -77,10 +75,9 @@ const processPDF = async (documentId, filePath) => {
       status: 'ready'
     });
 
-    console.log(`✅ Document ${documentId} processed`);
+    console.log(`✅ Document ${documentId} processed successfully`);
   } catch (error) {
     console.error('❌ PDF processing error:', error.message);
-
     await Document.findByIdAndUpdate(documentId, {
       status: 'error'
     });
@@ -203,23 +200,21 @@ export const deleteDocument = async (req, res, next) => {
       });
     }
 
-    await fs.unlink(document.filePath).catch(() => {});
+    // 1. Delete actual file from server
+    if (document.filePath) {
+      await fs.unlink(document.filePath).catch(() => {});
+    }
 
-    await FlashCard.deleteMany({
-      documentId: document._id,
-      userId: req.user._id
-    });
-
-    await Quiz.deleteMany({
-      documentId: document._id,
-      userId: req.user._id
-    });
-
-    await document.deleteOne(); 
+    // 2. Delete all associated study materials
+    await Promise.all([
+      FlashCard.deleteMany({ documentId: document._id, userId: req.user._id }),
+      Quiz.deleteMany({ documentId: document._id, userId: req.user._id }),
+      document.deleteOne()
+    ]);
 
     return res.status(200).json({
       success: true,
-      message: 'Document and associated data deleted'
+      message: 'Document and associated study data deleted successfully'
     });
   } catch (error) {
     next(error);

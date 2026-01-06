@@ -63,14 +63,6 @@ export const chunkText = (
 
 /* =========================
    RELEVANCE SEARCH
-========================= */
-
-const STOP_WORDS = new Set([
-  "a","an","the","and","or","but","if","then","else",
-  "of","to","in","on","for","with","at","by","from",
-  "is","are","was","were","be","been","being",
-  "this","that","these","those",
-  "it","its","as","not","no","nor",
 ]);
 
 export const findRelevantChunks = (
