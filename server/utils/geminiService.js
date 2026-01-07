@@ -54,17 +54,38 @@ export const generateFlashcardsAI = async (text, count = 10) => {
 
 export const generateQuizAI = async (text, numQuestions = 5) => {
     try {
-        const prompt = `Generate ${numQuestions} multiple choice questions.
-        Output ONLY a JSON array of objects with keys: "question", "options" (array of 4), "correctAnswer" (string), "explanation", "difficulty".
-        Text: ${text.substring(0, 12000)}`;
+        const prompt = `
+Generate ${numQuestions} multiple-choice questions.
+
+STRICT RULES:
+- Return ONLY valid JSON
+- Each question MUST have:
+  - question (string)
+  - options (array of EXACTLY 3 strings)
+  - correctAnswer (must match one option exactly)
+  - difficulty (easy | medium | hard)
+
+Text:
+${text.substring(0, 12000)}
+        `;
 
         const rawResponse = await callGeminiRest(prompt);
-        return safeParseJSON(rawResponse) || [];
+        const parsed = safeParseJSON(rawResponse);
+
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed.map(q => ({
+            question: q.question,
+            options: q.options.slice(0, 3),
+            correctAnswer: q.correctAnswer || q.answer || q.options[0], 
+            difficulty: (q.difficulty || 'easy').toLowerCase()
+        }));
     } catch (error) {
         console.error("Quiz Error:", error);
         return [];
     }
 };
+
 
 export const generateSummaryAI = async (text) => {
     try {
