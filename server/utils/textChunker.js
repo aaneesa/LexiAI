@@ -63,7 +63,7 @@ export const chunkText = (
 
 /* =========================
    RELEVANCE SEARCH
-]);
+]);*/
 
 export const findRelevantChunks = (
   chunks,
