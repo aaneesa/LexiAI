@@ -57,21 +57,28 @@ export const generateQuiz = async (req, res, next) => {
         const { documentId, count = 5 } = req.body;
 
         const document = await Document.findById(documentId);
-        if (!document) return res.status(404).json({ error: 'Document not found' });
+        if (!document) {
+            return res.status(404).json({ error: 'Document not found' });
+        }
 
         const questions = await generateQuizAI(document.extractedText, count);
 
         const quiz = await Quiz.create({
             userId: req.user._id,
             documentId,
+            title: `Quiz on ${document.title}`,
             questions,
         });
 
-        res.json({ success: true, data: quiz });
+        res.status(201).json({
+            success: true,
+            data: quiz
+        });
     } catch (err) {
         next(err);
     }
 };
+
 
 /* =========================
    SUMMARY
@@ -83,7 +90,7 @@ export const generateSummary = async (req, res, next) => {
         const document = await Document.findById(documentId);
 
         const summary = await generateSummaryAI(document.extractedText);
-        res.json({ success: true, summary });
+        res.json({ success: true, data: {title: document.title,summary}, message : 'Summary generated successfully' });
     } catch (err) {
         next(err);
     }
@@ -102,7 +109,7 @@ export const chat = async (req, res, next) => {
 
         const answer = await chatWithContextAI(question, chunks);
 
-        await ChatHistory.create({
+        const chatHistory = await ChatHistory.create({
             userId: req.user._id,
             documentId,
             messages: [
@@ -111,7 +118,7 @@ export const chat = async (req, res, next) => {
             ],
         });
 
-        res.json({ success: true, answer });
+        res.json({ success: true, data: {question,answer }, chatHistoryId : chatHistory._id,message : 'Chat response generated successfully' });
     } catch (err) {
         next(err);
     }
@@ -131,7 +138,7 @@ export const explainConcept = async (req, res, next) => {
             document.extractedText
         );
 
-        res.json({ success: true, explanation });
+        res.json({ success: true, data:{concept,explanation },message : 'Concept explained successfully' });
     } catch (err) {
         next(err);
     }

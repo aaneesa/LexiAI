@@ -15,7 +15,7 @@ router.use(protect);
 router.get('/',getAllFlashcards)
 router.get('/:documentId',getFlashcards);
 router.post('/:flashcardId/review',reviewFlashcards);
-router.post('/:flashcardId/toggle-star',toggleStarFlashcard);
+router.patch('/:flashcardId/toggle-star',toggleStarFlashcard);
 router.delete('/:flashcardId',deleteFlashcard);
 
 export default router;
