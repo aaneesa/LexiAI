@@ -12,7 +12,7 @@ export const register = async (req, res, next) => {
     const {username, email, password} = req.body;
     const userExists = await User.findOne({$or : [{ email }]});
     if (userExists) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error :
         userExists.email === email ? 'Email already in use' : 'Username already in use',
@@ -152,7 +152,7 @@ export const changePassword = async (req, res, next) => {
     user.password = newPassword;
     await user.save();
 
-    res.json({ success: trur, message: "Password updated successfully" });
+    res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
     next(error);
   }
