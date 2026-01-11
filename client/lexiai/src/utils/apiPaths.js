@@ -1,0 +1,57 @@
+export const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+export const API_PATHS = {
+  AUTH: {
+    REGISTER: "/api/auth/register",
+    LOGIN: "/api/auth/login",
+    GET_PROFILE: "/api/auth/profile",
+    UPDATE_PROFILE: "/api/auth/profile",
+    CHANGE_PASSWORD: "/api/auth/change-password",
+  },
+
+  DOCUMENTS: {
+    UPLOAD: "/api/documents/upload",
+    GET_DOCUMENTS: "/api/documents",
+    GET_DOCUMENT_BY_ID: (id) => `/api/documents/${id}`,
+    DELETE_DOCUMENT: (id) => `/api/documents/${id}`,
+  },
+
+  AI: {
+    GENERATE_FLASHCARDS: "/api/ai/generate-flashcards",
+    GENERATE_QUIZ: "/api/ai/generate-quiz",
+    GENERATE_SUMMARY: "/api/ai/generate-summary",
+    CHAT: "/api/ai/chat",
+    EXPLAIN_CONCEPT: "/api/ai/explain",
+    GET_CHAT_HISTORY: (documentId) =>
+      `/api/ai/chat-history/${documentId}`,
+  },
+
+  FLASHCARDS: {
+    GET_ALL_FLASHCARDS: "/api/flashcards",
+    GET_FLASHCARDS_FOR_DOC: (documentId) =>
+      `/api/flashcards/${documentId}`,
+    REVIEW_FLASHCARD: (flashcardId) =>
+      `/api/flashcards/${flashcardId}/review`,
+    TOGGLE_STAR: (flashcardId) =>
+      `/api/flashcards/${flashcardId}/toggle-star`,
+    DELETE_FLASHCARD: (flashcardId) =>
+      `/api/flashcards/${flashcardId}`,
+  },
+
+  QUIZZES: {
+    GET_QUIZZES_FOR_DOC: (documentId) =>
+      `/api/quizzes/${documentId}`,
+    GET_QUIZ_BY_ID: (id) =>
+      `/api/quizzes/quiz/${id}`,
+    SUBMIT_QUIZ: (id) =>
+      `/api/quizzes/${id}/submit`,
+    GET_QUIZ_MARKS: (id) =>
+      `/api/quizzes/${id}/marks`,
+    DELETE_QUIZ: (id) =>
+      `/api/quizzes/${id}`,
+  },
+
+  PROGRESS: {
+    GET_DASHBOARD: "/api/progress/dashboard",
+  },
+};
