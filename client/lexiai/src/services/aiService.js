@@ -12,7 +12,6 @@ const generateFlashcards = async (documentId, options) => {
     throw error.response?.data || { message: 'Failed to generate flashcards' };
   }
 };
-
 const generateQuiz = async (documentId, options) => {
   try {
     const response = await axiosInstance.post(
@@ -80,5 +79,4 @@ const aiService = {
   explainConcept,
   getChatHistory,
 };
-
 export default aiService;

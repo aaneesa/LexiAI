@@ -1,6 +1,5 @@
 import axiosInstance from '../utils/axiosInstance';
 import { API_PATHS } from '../utils/apiPaths';
-
 const getDocuments = async () => {
   try {
     const response = await axiosInstance.get(
@@ -11,7 +10,6 @@ const getDocuments = async () => {
     throw error.response?.data || { message: 'Failed to fetch documents' };
   }
 };
-
 const uploadDocument = async (formData) => {
   try {
     const response = await axiosInstance.post(

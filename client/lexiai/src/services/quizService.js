@@ -58,7 +58,6 @@ const deleteQuiz = async (quizId) => {
     throw error.response?.data || { message: 'Failed to delete quiz' };
   }
 };
-
 const quizService = {
   getQuizzesForDocument,
   getQuizById,

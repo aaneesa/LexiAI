@@ -13,7 +13,6 @@ const getAllFlashcardSets = async () => {
     };
   }
 };
-
 const getFlashcardsForDocument = async (documentId) => {
   try {
     const response = await axiosInstance.get(
